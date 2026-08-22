@@ -79,7 +79,6 @@ export default function AdminDashboard() {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Pending actions</h2>
         <div className={styles.mainGrid}>
           <Card>
             <CardHeader title="Leave requests awaiting review" actions={<Button as={Link} to="/admin/leave" variant="ghost" size="sm">View all</Button>} />

@@ -10,8 +10,8 @@
 .drawer {
   width: min(280px, 84vw);
   height: 100%;
-  background: var(--surface-sidebar);
-  border-right: 1px solid var(--border-default);
+  background: var(--rail-bg);
+  border-right: 1px solid var(--rail-border);
   display: flex;
   flex-direction: column;
   padding: var(--space-5) var(--space-3);
@@ -30,21 +30,21 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--text-primary);
+  color: var(--rail-text);
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   font-size: var(--text-md);
 }
 
 .closeButton {
-  color: var(--text-tertiary);
+  color: var(--rail-text-muted);
   padding: 6px;
   border-radius: var(--radius-sm);
 }
 
 .closeButton:hover {
-  color: var(--text-primary);
-  background: var(--color-gray-100);
+  color: var(--rail-text);
+  background: var(--rail-hover-bg);
 }
 
 .navScroll {

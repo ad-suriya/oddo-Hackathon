@@ -1,8 +1,11 @@
+/* The one place the authenticated app visually *is* the login screen — see
+   DESIGN.md "Rail / signature component". Colors come from --rail-* tokens
+   (tokens.css), quoted verbatim from SplitAuthLayout's --auth-* locals. */
 .sidebar {
   width: var(--sidebar-width);
   flex-shrink: 0;
-  background: var(--surface-sidebar);
-  border-right: 1px solid var(--border-default);
+  background: var(--rail-bg);
+  border-right: 1px solid var(--rail-border);
   display: flex;
   flex-direction: column;
   padding: var(--space-5) var(--space-3);
@@ -21,7 +24,7 @@
 }
 
 .brandName {
-  color: var(--text-primary);
+  color: var(--rail-text);
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   font-size: var(--text-md);

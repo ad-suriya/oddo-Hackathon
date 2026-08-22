@@ -4,8 +4,8 @@
   justify-content: space-between;
   height: var(--header-height);
   padding: 0 var(--space-4);
-  background: var(--surface-sidebar);
-  border-bottom: 1px solid var(--border-default);
+  background: var(--rail-bg);
+  border-bottom: 1px solid var(--rail-border);
   position: sticky;
   top: 0;
   z-index: var(--z-header);
@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--text-primary);
+  color: var(--rail-text);
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
 }
@@ -26,13 +26,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--rail-text-muted);
   border-radius: var(--radius-md);
 }
 
 .menuButton:hover {
-  color: var(--text-primary);
-  background: var(--color-gray-100);
+  color: var(--rail-text);
+  background: var(--rail-hover-bg);
 }
 
 @media (max-width: 880px) {

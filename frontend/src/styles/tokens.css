@@ -1,20 +1,25 @@
-/* Dayflow design tokens — single source of truth for the visual language. */
+/* Dayflow design tokens — single source of truth for the visual language.
+   The accent, radius, and focus/elevation language here are deliberately
+   the same ones the login screen (SplitAuthLayout.module.css's --auth-*
+   locals) already uses — see DESIGN.md. Do not let the two drift again. */
 :root {
-  /* Brand — coral/rose, the primary CTA, link, and heading color */
-  --color-brand-50: #fff1f2;
-  --color-brand-100: #ffe4e6;
-  --color-brand-200: #fecdd3;
-  --color-brand-300: #fda4af;
-  --color-brand-400: #fb7185;
-  --color-brand-500: #f43f5e;
-  --color-brand-600: #e11d48;
-  --color-brand-700: #be123c;
-  --color-brand-800: #9f1239;
-  --color-brand-900: #881337;
+  /* Brand — the ONE interactive accent in the system: primary actions,
+     links, current selection, focus rings. 600/700 are exact matches for
+     the login screen's --auth-accent / --auth-accent-hover. */
+  --color-brand-50: #fff1f3;
+  --color-brand-100: #ffe1e6;
+  --color-brand-200: #ffc2cc;
+  --color-brand-300: #ff93a3;
+  --color-brand-400: #fb5875;
+  --color-brand-500: #f2264c;
+  --color-brand-600: #e91e46;
+  --color-brand-700: #c8163a;
+  --color-brand-800: #9f1130;
+  --color-brand-900: #7a0e26;
 
-  /* Blue accent — the secondary "active state" color: sidebar selection,
-     focus rings, in-progress/info indicators. Distinct from brand so
-     "select this" never reads as "this is broken" or "click me". */
+  /* Blue — semantic "info" tone only (e.g. the "on leave" badge). Never an
+     interactive/selection color: the login world has exactly one accent
+     (brand, above), so nav selection and focus rings use that, not this. */
   --color-blue-50: #f0f9ff;
   --color-blue-100: #e0f2fe;
   --color-blue-200: #bae6fd;
@@ -67,14 +72,27 @@
   --color-info-500: var(--color-blue-500);
   --color-info-600: var(--color-blue-700);
 
-  /* Surface — cream leads as the dominant plane; sky-blue is reserved for
-     the active/info accent role described above, not a background wash. */
-  --surface-page: #f7f2e7;
+  /* Surface — a quiet, cool-neutral paper for the content stage (not the
+     previous warm cream). The sidebar/mobile-nav "rail" is a separate dark
+     surface below, quoting the login screen directly. */
+  --surface-page: #f8f7f6;
   --surface-card: var(--color-gray-0);
-  --surface-sunken: #f1ebdc;
-  --surface-sidebar: #fffdf8;
-  --surface-highlight: #fef9c3;
+  --surface-sunken: #f2f1ef;
+  --surface-highlight: var(--color-brand-50);
   --surface-overlay: rgba(15, 23, 42, 0.48);
+
+  /* Rail — sidebar + mobile header/drawer. Exact values from the login
+     screen's --auth-bg / --auth-surface / --auth-text / --auth-text-muted
+     / --auth-accent, so the nav is the one place the authenticated app
+     visually *is* the login screen. */
+  --rail-bg: #0c0c0d;
+  --rail-surface: #17171a;
+  --rail-border: #292929;
+  --rail-text: #f5f5f5;
+  --rail-text-muted: #9a9a9a;
+  --rail-hover-bg: rgba(255, 255, 255, 0.06);
+  --rail-active-bg: rgba(233, 30, 70, 0.14);
+  --rail-active-text: var(--color-brand-600);
 
   /* Text */
   --text-primary: var(--color-gray-900);
@@ -88,16 +106,21 @@
   /* Border */
   --border-default: var(--color-gray-200);
   --border-strong: var(--color-gray-300);
-  --border-focus: var(--color-blue-600);
+  --border-focus: var(--color-brand-600);
+  --focus-ring: rgba(233, 30, 70, 0.16);
 
-  /* Radius */
+  /* Radius — tighter than a typical SaaS scale, and 10px inputs/buttons
+     matches the login form's own inputs exactly. */
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
   --radius-full: 999px;
 
-  /* Shadow */
+  /* Shadow — reserved for things that actually float (modal, drawer).
+     Cards/tiles rest on a border, not a shadow; see DESIGN.md "Border-Not
+     -Shadow Rule". shadow-xs survives only for the primary button's hairline
+     lift. */
   --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
   --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
   --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04);
