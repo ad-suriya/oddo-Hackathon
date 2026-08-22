@@ -11,7 +11,6 @@
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js",
     "mock-data": "node scripts/mockData.js",
-    "db-gui": "node scripts/dbGui.js",
     "test": "node --test tests/*.test.js"
   },
   "dependencies": {
