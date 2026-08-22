@@ -9,7 +9,7 @@
 
 .card {
   width: 100%;
-  max-width: 408px;
+  max-width: 440px;
   background: var(--surface-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-xl);
@@ -39,8 +39,8 @@
 }
 
 .subtitle {
-  font-size: var(--text-base);
-  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
   margin-bottom: var(--space-6);
 }
 
@@ -52,6 +52,10 @@
 }
 
 @media (max-width: 460px) {
+  .page {
+    padding: var(--space-4);
+  }
+
   .card {
     padding: var(--space-6);
   }
