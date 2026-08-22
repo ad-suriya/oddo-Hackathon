@@ -399,9 +399,107 @@ plain, ordered `.sql` files per the existing convention.
 
 ---
 
+## 2026-08-22 - Cookie-Based Server-Side Sessions
+
+### Decision
+
+Authentication uses an opaque, random session token stored in an
+`httpOnly` cookie. The token itself is never persisted — only its SHA-256
+hash, in a new `sessions` table (`token_hash`, `user_id`, `expires_at`).
+The cookie is additionally signed (`cookie-parser` + `SESSION_SECRET`) as
+defense-in-depth against tampering.
+
+### Reason
+
+The frontend already calls `fetch(url, { credentials: "include" })` with
+no `Authorization` header (`frontend/src/api/client.js`), so cookies were
+the only fit without a frontend change. A DB-backed opaque token (rather
+than a JWT) means sessions can be invalidated server-side on logout —
+a stateless JWT can't be revoked without an extra denylist mechanism,
+which is more moving parts than a hackathon-scope session store needs.
+
+### Alternatives Considered
+
+- JWT in an `httpOnly` cookie (stateless, but revocation requires a
+  denylist table anyway — no simpler than just storing the session).
+- `express-session` + `connect-pg-simple` (a well-known combination, but
+  pulls in a second table-management convention on top of the project's
+  existing hand-written-migrations approach for no real benefit here).
+
+### Impact
+
+New `sessions` table (`database/migrations/0010_create_sessions_table.sql`).
+`SESSION_SECRET` added to backend env vars. See
+`docs/FRONTEND_HANDOFF.md` §1 for full mechanics (remember-me handling,
+cookie flags per environment, CORS requirements).
+
+---
+
+## 2026-08-22 - Password Hashing via bcryptjs
+
+### Decision
+
+Passwords are hashed with `bcryptjs` (pure-JS bcrypt, 10 salt rounds)
+rather than the native `bcrypt` package.
+
+### Reason
+
+`bcryptjs` has no native-addon build step — one less thing to break across
+teammates' machines/OSes on a hackathon timeline. Hashing cost is not a
+bottleneck at this scale.
+
+### Impact
+
+`backend/src/utils/password.js` wraps `hashPassword`/`verifyPassword`.
+Seed accounts (`backend/scripts/seed.js`) use the same function, so seeded
+and self-registered accounts are hashed identically.
+
+---
+
+## 2026-08-22 - embedded-postgres for Local Development
+
+### Decision
+
+`backend/scripts/dev-db.js` (via the `embedded-postgres` devDependency)
+can start a real, local PostgreSQL server from downloaded binaries — no
+system-wide PostgreSQL install, Docker, or admin rights required.
+
+### Reason
+
+Not every teammate's (or grader's) machine has PostgreSQL installed, and
+requiring it is friction the app itself doesn't need — `embedded-postgres`
+runs the actual PostgreSQL binary (same wire protocol, same SQL), just
+without a system install. `backend/src/repositories/db.js` and every query
+in the app are unaware of the difference; production deployments simply
+point `DB_HOST`/`DB_PORT`/etc. at a real managed or self-hosted instance
+and never touch this script.
+
+### Alternatives Considered
+
+- Requiring a system PostgreSQL install or Docker Compose (real friction
+  when neither is available in an environment — which is exactly the
+  situation this decision solves for).
+- An in-memory JS reimplementation of Postgres (e.g. `pg-mem`) for
+  dev/test — rejected because it isn't actually PostgreSQL: subtly
+  different SQL support/behavior would undermine the "no ORM, plain SQL
+  against real Postgres" approach the rest of the backend commits to.
+
+### Impact
+
+`backend/.pgdata/` (gitignored) holds the local cluster's data directory.
+`npm run dev:db` / `npm run migrate` / `npm run seed` in
+`docs/FRONTEND_HANDOFF.md` §10 describe the local workflow. Nothing in
+`backend/src/` (the actual runtime code) depends on `embedded-postgres` —
+only the dev-convenience scripts do.
+
+---
+
 # Pending Technical Decisions
 
 The following have intentionally not been finalized:
 
-- Authentication implementation (hashing library, session/token strategy)
 - Deployment platform
+- Leave balance/entitlement model (see `docs/FRONTEND_HANDOFF.md` §11)
+- Payroll period/payslip history (see `docs/FRONTEND_HANDOFF.md` §11)
+- Document upload endpoint and storage wiring (see `docs/FRONTEND_HANDOFF.md` §11)
+- Real email verification flow (see `docs/FRONTEND_HANDOFF.md` §11)

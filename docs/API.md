@@ -43,8 +43,12 @@ TBD
 
 # 4. Existing Endpoints
 
-These already exist in `backend/src/routes/` and are implemented today —
-everything else in this document is the planned contract, not yet built.
+Every endpoint in sections 5–10 below is implemented in `backend/src/routes/`
+and verified against a real PostgreSQL database (manual smoke tests, an
+automated `backend/tests/` suite, and the frontend itself with
+`VITE_USE_MOCK_API=false`). See `docs/FRONTEND_HANDOFF.md` for exact request/
+response DTOs, the error format, the role/permission matrix, and known gaps
+(leave balance, payroll period/status, document upload, email verification).
 
 | Method | Endpoint | Description | Auth |
 |---|---|---|---|
@@ -62,7 +66,8 @@ everything else in this document is the planned contract, not yet built.
 | POST   | `/auth/logout`         | End authenticated session        | Yes  | All    |
 | GET    | `/auth/me`             | Get current authenticated user   | Yes  | All    |
 
-Authentication implementation is TBD.
+Cookie-based, server-side sessions (opaque token, hashed at rest in a new
+`sessions` table) — see `docs/FRONTEND_HANDOFF.md` §1.
 
 ---
 
@@ -110,7 +115,9 @@ Authentication implementation is TBD.
 | GET    | `/payroll`                 | Get payroll information                 | Yes  | Admin/HR |
 | PATCH  | `/payroll/:employeeId`     | Update salary information               | Yes  | Admin/HR |
 
-The final payroll API depends on the database model.
+`netPay`, `payPeriod`, and `paymentStatus` are computed at read time, not
+stored columns — see `docs/FRONTEND_HANDOFF.md` §11 for the `payPeriod`/
+`paymentStatus` gap.
 
 ---
 
@@ -121,7 +128,8 @@ The final payroll API depends on the database model.
 | GET    | `/employees/me/documents`       | Get own documents            | Yes  | Employee |
 | GET    | `/employees/:id/documents`      | Get employee documents       | Yes  | Admin/HR |
 
-Upload and delete endpoints will be added after the document storage approach is selected.
+Read-only, implemented. Upload and delete endpoints are still not built —
+see `docs/FRONTEND_HANDOFF.md` §11 ("Documents" gap).
 
 ---
 
@@ -158,13 +166,11 @@ Example:
 }
 ```
 
-The final error response structure will be finalized during backend implementation.
-
-Note: the existing `/api/health` endpoint currently returns errors as a flat
-`{ "error": "message" }` (see `backend/src/middleware/errorHandler.js`).
-Reconcile this with the structured format above when authentication/feature
-endpoints are implemented — don't leave two inconsistent error shapes in the
-same API.
+This is the final, implemented error shape (`backend/src/utils/errors.js`,
+`backend/src/middleware/errorHandler.js`). `/api/health`'s 503 body
+(`{ status, database }`) is intentionally not wrapped in this shape — it's a
+liveness probe response, not an error being thrown through the request
+pipeline.
 
 ---
 
@@ -270,11 +276,11 @@ API endpoints should not be implemented without understanding the underlying dat
 - [x] Attendance routes identified
 - [x] Leave routes identified
 - [x] Payroll routes identified
-- [ ] Exact request schemas finalized
-- [ ] Exact response schemas finalized
-- [ ] Authentication implementation finalized
-- [ ] Authorization middleware finalized
-- [ ] Error format finalized (reconcile health-check shape with structured format above)
-- [ ] API validation finalized
-- [ ] API tests written
-- [ ] Frontend integration completed
+- [x] Exact request schemas finalized
+- [x] Exact response schemas finalized
+- [x] Authentication implementation finalized (cookie-based sessions)
+- [x] Authorization middleware finalized
+- [x] Error format finalized
+- [x] API validation finalized
+- [x] API tests written (`backend/tests/`, 37 passing)
+- [x] Frontend integration completed (`VITE_USE_MOCK_API=false` verified end-to-end)

@@ -42,10 +42,11 @@ employees
   +------< employee_documents
 ```
 
-Six tables total. No `roles` or `leave_types` lookup tables — those are
-small, fixed vocabularies modeled as native Postgres ENUM types
-(`user_role`, `attendance_status`, `leave_type`, `leave_status`), defined in
-`database/migrations/0003_create_enum_types.sql`.
+Seven tables total (six here plus `sessions`, added once the authentication
+mechanism was decided — see §4.7 and `docs/DECISIONS.md`). No `roles` or
+`leave_types` lookup tables — those are small, fixed vocabularies modeled as
+native Postgres ENUM types (`user_role`, `attendance_status`, `leave_type`,
+`leave_status`), defined in `database/migrations/0003_create_enum_types.sql`.
 
 ---
 
@@ -155,6 +156,21 @@ separate single-value column on `employees`, not a row here.
 | uploaded_by | UUID NULL FK → users ON DELETE SET NULL | |
 | created_at | TIMESTAMPTZ NOT NULL | |
 
+## 4.7 sessions
+
+Cookie-backed server-side session store — the authentication mechanism
+decided in `docs/DECISIONS.md` ("Cookie-Based Server-Side Sessions").
+
+| Column | Type | Notes |
+|---|---|---|
+| token_hash | TEXT PK | SHA-256 of the session cookie's raw token — the raw token is never stored, same convention as `users.email_verification_token_hash` |
+| user_id | UUID NOT NULL FK → users ON DELETE CASCADE | |
+| expires_at | TIMESTAMPTZ NOT NULL | |
+| created_at | TIMESTAMPTZ NOT NULL DEFAULT now() | |
+
+No `updated_at` — a session row is never mutated, only created and deleted
+(logout) or left to expire.
+
 ---
 
 # 5. Relationships and Cascading
@@ -168,6 +184,7 @@ employees --1:N--> employee_documents    ON DELETE CASCADE
 employees --1:N--> leave_requests        ON DELETE SET NULL (as reviewer)
 users     --1:N--> employee_documents    ON DELETE SET NULL (as uploader)
 users     --1:N--> employee_salary       ON DELETE SET NULL (as last editor)
+users     --1:N--> sessions              ON DELETE CASCADE
 ```
 
 Deleting an employee's account cascades through their own attendance, leave
@@ -201,6 +218,9 @@ rows keep the record but null out the `reviewed_by`/`uploaded_by` reference.
 | `leave_requests.employee_id` | "my leave requests" |
 | `leave_requests.status` | admin "pending approvals" queue |
 | `employee_documents.employee_id` | "my documents" / admin document list |
+| `sessions` (from PK) | cookie lookup on every authenticated request |
+| `sessions.user_id` | logout-everywhere / account-deletion cleanup |
+| `sessions.expires_at` | future expired-session sweep (not yet scheduled — see `docs/FRONTEND_HANDOFF.md` §11) |
 
 No indexes added beyond what the API endpoints in `docs/API.md` actually
 query by.
@@ -220,7 +240,8 @@ database/
 │   ├── 0006_create_attendance_table.sql
 │   ├── 0007_create_leave_requests_table.sql
 │   ├── 0008_create_employee_salary_table.sql
-│   └── 0009_create_employee_documents_table.sql
+│   ├── 0009_create_employee_documents_table.sql
+│   └── 0010_create_sessions_table.sql
 ├── queries/
 │   └── common_queries.sql
 └── seeds/
@@ -235,14 +256,27 @@ already-applied migration — write a new one.
 # 9. Local PostgreSQL Setup
 
 ```env
-DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/dayflow
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=dayflow
+DB_USER=postgres
+DB_PASSWORD=...
 ```
 
 ```bash
 createdb dayflow
 for f in database/migrations/*.sql; do psql "$DATABASE_URL" -f "$f"; done
-psql "$DATABASE_URL" -f database/seeds/0001_seed_dev_data.sql   # optional, dev only
 ```
+
+Or, without `psql`/an existing PostgreSQL install: `cd backend && npm run
+migrate` runs the same `database/migrations/*.sql` files in order via `pg`
+(see `backend/scripts/migrate.js`) — idempotent, tracked in a
+`schema_migrations` table.
+
+If no PostgreSQL server is available at all, `npm run dev:db` inside
+`backend/` starts a real local PostgreSQL 18 cluster (via the
+`embedded-postgres` devDependency, downloaded binaries, no system install
+required) — see `docs/FRONTEND_HANDOFF.md` §10.
 
 Never commit real database credentials.
 
@@ -250,13 +284,15 @@ Never commit real database credentials.
 
 # 10. Seed Data
 
-`database/seeds/0001_seed_dev_data.sql` creates 2 admin/HR accounts, 3
-employee accounts, their salary rows, a few days of attendance, and leave
-requests in `pending`/`approved`/`rejected` states.
+`database/seeds/0001_seed_dev_data.sql` is the original placeholder-hash
+version, kept for reference — its password hashes are **not** valid
+bcrypt hashes and cannot be used to log in.
 
-Password hashes in the seed are **placeholders**, not valid bcrypt/argon2
-hashes — regenerate them with the real hashing function once auth is
-implemented. Seed data must never contain real user information.
+`backend/scripts/seed.js` (`cd backend && npm run seed`) is the real,
+idempotent seed to use now that auth is implemented: same accounts/UUIDs,
+real bcrypt hashes of the documented demo password. Every insert is
+guarded by `ON CONFLICT` / `NOT EXISTS`, so running it repeatedly is safe.
+Seed data must never contain real user information.
 
 ---
 
@@ -286,4 +322,4 @@ implemented. Seed data must never contain real user information.
 - [x] Database access approach selected (raw SQL via `pg`, no ORM)
 - [x] Initial migrations created
 - [x] Seed data created
-- [ ] Database tested with backend
+- [x] Database tested with backend (real PostgreSQL, `backend/tests/`, manual smoke tests, live frontend integration)

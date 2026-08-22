@@ -5,6 +5,6 @@ export async function getHealth(req, res) {
     await checkDatabaseConnection();
     res.json({ status: "ok", database: "connected" });
   } catch (err) {
-    res.status(503).json({ status: "ok", database: "unreachable" });
+    res.status(503).json({ status: "error", database: "unreachable" });
   }
 }
