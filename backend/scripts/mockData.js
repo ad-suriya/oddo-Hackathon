@@ -93,6 +93,8 @@ async function main() {
     console.log("Backfilling 10 weekdays of attendance history...");
     const days = weekdaysAgo(10);
     const allEmployeeIds = [
+      ADMIN_EMPLOYEE_ID, // Ada Admin
+      HR_EMPLOYEE_ID, // Helen Ross
       "20000000-0000-0000-0000-000000000003", // alice
       "20000000-0000-0000-0000-000000000004", // bob
       "20000000-0000-0000-0000-000000000005", // carol
@@ -137,6 +139,10 @@ async function main() {
       { employeeId: "30000000-0000-0000-0000-000000000010", leaveType: "paid", start: "CURRENT_DATE + 8", end: "CURRENT_DATE + 9", remarks: "Cousin's engagement", status: "pending", reviewedBy: null, comment: null },
       { employeeId: "30000000-0000-0000-0000-000000000011", leaveType: "unpaid", start: "CURRENT_DATE - 15", end: "CURRENT_DATE - 15", remarks: "Moving apartments", status: "approved", reviewedBy: HR_EMPLOYEE_ID, comment: "Noted." },
       { employeeId: "30000000-0000-0000-0000-000000000012", leaveType: "sick", start: "CURRENT_DATE - 1", end: "CURRENT_DATE", remarks: "Migraine", status: "pending", reviewedBy: null, comment: null },
+      { employeeId: ADMIN_EMPLOYEE_ID, leaveType: "paid", start: "CURRENT_DATE - 30", end: "CURRENT_DATE - 26", remarks: "Annual family vacation", status: "approved", reviewedBy: HR_EMPLOYEE_ID, comment: "Approved, have a great trip." },
+      { employeeId: ADMIN_EMPLOYEE_ID, leaveType: "sick", start: "CURRENT_DATE + 6", end: "CURRENT_DATE + 6", remarks: "Routine checkup", status: "pending", reviewedBy: null, comment: null },
+      { employeeId: HR_EMPLOYEE_ID, leaveType: "paid", start: "CURRENT_DATE - 45", end: "CURRENT_DATE - 43", remarks: "Sister's wedding", status: "approved", reviewedBy: ADMIN_EMPLOYEE_ID, comment: "Approved." },
+      { employeeId: HR_EMPLOYEE_ID, leaveType: "unpaid", start: "CURRENT_DATE + 12", end: "CURRENT_DATE + 12", remarks: "Personal work", status: "pending", reviewedBy: null, comment: null },
     ];
     let leaveCount = 0;
     for (const l of leaveSeeds) {
@@ -158,6 +164,8 @@ async function main() {
       { employeeId: "30000000-0000-0000-0000-000000000001", fileName: "Offer Letter.pdf", fileType: "application/pdf", size: 184200, path: "/uploads/rohan/offer-letter.pdf" },
       { employeeId: "30000000-0000-0000-0000-000000000002", fileName: "Aadhaar Card.jpg", fileType: "image/jpeg", size: 102400, path: "/uploads/ananya/aadhaar.jpg" },
       { employeeId: "30000000-0000-0000-0000-000000000008", fileName: "Offer Letter.pdf", fileType: "application/pdf", size: 181900, path: "/uploads/neha/offer-letter.pdf" },
+      { employeeId: ADMIN_EMPLOYEE_ID, fileName: "PAN Card.pdf", fileType: "application/pdf", size: 98200, path: "/uploads/ada/pan-card.pdf" },
+      { employeeId: HR_EMPLOYEE_ID, fileName: "Offer Letter.pdf", fileType: "application/pdf", size: 179400, path: "/uploads/helen/offer-letter.pdf" },
     ];
     let docCount = 0;
     for (const d of docSeeds) {
