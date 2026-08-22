@@ -1,81 +1,230 @@
-# Project Context
+# Dayflow - Project Context
 
-> Living document. Keep this up to date as decisions are made — it's the
-> single place a teammate (or judge) can read to understand where things
-> stand. Do not leave sections filled with placeholder/invented content;
-> leave them blank with a `TODO` until they're actually decided.
+## 1. Project Overview
 
-## Project name
+### Project Name
 
-TODO
+Dayflow
 
-## Problem statement
+### Project Type
 
-TODO — not finalized yet.
+Human Resource Management System (HRMS)
 
-## Target users
+### Problem Statement
 
-TODO
+Dayflow is an HRMS designed to digitize and streamline employee and HR workflows in a single platform.
 
-## Core features
+The system centralizes employee information, attendance, leave management, payroll/salary information, and related HR operations while providing different access levels for Employees and Admin/HR users.
 
-TODO — do not invent these before the problem statement is chosen.
+The goal is to reduce manual HR processes and provide a clear, secure, and easy-to-use system for managing employee information and day-to-day HR activities.
 
-## Tech stack
+---
 
-- **Frontend:** React (Vite)
-- **Backend:** Node.js (Express)
-- **Database:** PostgreSQL
-- **Architecture:** Modular monolith (see `docs/ARCHITECTURE.md`)
+## 2. Target Users
 
-## Architecture
-
-See `docs/ARCHITECTURE.md`.
-
-## Database
-
-See `docs/DATABASE.md`. No schema yet — depends on the problem statement.
-
-## API
-
-See `docs/API.md`. No feature endpoints yet.
-
-## Team members
-
-| Name | Email/Contact | Role |
+| User | Description | Main Responsibilities |
 |---|---|---|
-| | | |
-| | | |
-| | | |
-| | | |
+| Employee | Employee using the HRMS | Manage/view profile, attendance, leave requests, and payroll/salary information |
+| Admin / HR Officer | HR or administrative user | Manage employees, view attendance, manage leave requests, and manage payroll/salary information |
 
-## Feature ownership
+---
 
-TODO — fill in once features exist and are assigned.
+## 3. Core Features
 
-| Feature | Owner(s) |
+### Authentication
+- Sign Up
+- Sign In
+- Email verification
+- Password validation
+- Role-based access
+- Secure password handling
+
+### Employee Profile
+- Personal information
+- Contact information
+- Address
+- Job information
+- Salary information
+- Profile picture
+- Employee documents
+
+### Employee Management
+- View employees
+- View employee details
+- Manage employee information
+
+### Attendance
+- Check in
+- Check out
+- Daily attendance
+- Weekly attendance
+- Attendance history
+- Present
+- Absent
+- Half-day
+- Leave
+
+### Leave Management
+- Create leave request
+- Paid leave
+- Sick leave
+- Unpaid leave
+- Pending
+- Approved
+- Rejected
+- Admin/HR approval and rejection
+
+### Payroll
+- Employee salary/payroll visibility
+- Admin/HR payroll access
+- Salary structure management
+
+---
+
+## 4. User Flows
+
+### Employee
+
+Sign Up
+→ Email Verification
+→ Sign In
+→ Employee Dashboard
+→ Profile / Attendance / Leave / Payroll
+
+### Admin / HR
+
+Sign In
+→ Admin/HR Dashboard
+→ Employees / Attendance / Leave / Payroll
+
+---
+
+## 5. Roles & Permissions
+
+| Capability | Employee | Admin / HR |
+|---|---:|---:|
+| Sign In | Yes | Yes |
+| View own profile | Yes | Yes |
+| Manage own profile | Yes | Yes |
+| Check in/out | Yes | Not specified |
+| View own attendance | Yes | Yes |
+| View all attendance | No | Yes |
+| Submit leave | Yes | Not specified |
+| Approve/reject leave | No | Yes |
+| View own payroll | Yes | Yes |
+| Manage salary structure | No | Yes |
+| View employees | No | Yes |
+| Manage employee information | Limited | Yes |
+
+---
+
+## 6. Team Members
+
+| Name | Contact | Primary Role |
+|---|---|---|
+| A. D. Suriya | TODO | Database + Backend |
+| Pratyush | TODO | Full Stack |
+| Vikass | TODO | Frontend |
+| Gokul | TODO | QA, Validation & Error Management |
+
+---
+
+## 7. Feature Ownership
+
+| Feature / Area | Primary Owner | Backup | Status |
+|---|---|---|---|
+| Database Architecture | A. D. Suriya | Pratyush | Not started |
+| PostgreSQL Schema | A. D. Suriya | Pratyush | Not started |
+| Database Migrations | A. D. Suriya | Pratyush | Not started |
+| Backend Architecture | A. D. Suriya | Pratyush | Not started |
+| Backend APIs | A. D. Suriya | Pratyush | Not started |
+| Business Logic | A. D. Suriya | Pratyush | Not started |
+| Frontend Architecture | Vikass | Pratyush | Not started |
+| UI/UX | Vikass | Pratyush | Not started |
+| Frontend/API Integration | Pratyush | Vikass | Not started |
+| Full-Stack Integration | Pratyush | A. D. Suriya | Not started |
+| Input Validation | Gokul | A. D. Suriya | Not started |
+| Error Handling | Gokul | Pratyush | Not started |
+| Testing & Debugging | Gokul | Entire Team | Not started |
+
+---
+
+## 8. Current Status
+
+### Planning
+
+- [x] Requirements reviewed
+- [x] Problem identified
+- [x] Target users identified
+- [x] Core features identified
+- [x] Team responsibilities assigned
+- [ ] MVP finalized
+- [ ] Architecture finalized
+- [ ] Database designed
+- [ ] API designed
+
+### Development
+
+- [ ] Backend initialized
+- [ ] Database initialized
+- [ ] Frontend initialized
+- [ ] Authentication
+- [ ] Employee management
+- [ ] Attendance
+- [ ] Leave management
+- [ ] Payroll
+- [ ] Integration
+- [ ] Testing
+- [ ] Deployment
+
+---
+
+## 9. Known Issues
+
+No known issues yet.
+
+Issues should be added here as they are discovered.
+
+Format:
+
+### [YYYY-MM-DD] Issue Title
+
+**Problem:**
+Describe the issue.
+
+**Impact:**
+Describe what is affected.
+
+**Owner:**
+Team member responsible.
+
+**Status:**
+Open / In Progress / Resolved
+
+---
+
+## 10. Project Principles
+
+- Build according to the actual problem.
+- Keep the architecture simple and understandable.
+- Use PostgreSQL for relational data.
+- Validate input on the backend.
+- Enforce authorization on the backend.
+- Protect employee and salary information.
+- Handle errors gracefully.
+- Use Git collaboratively.
+- Understand AI-generated code before merging it.
+- Avoid unnecessary third-party dependencies.
+- Prioritize a reliable MVP over unnecessary features.
+- Document significant technical decisions.
+
+---
+
+## 11. Related Documentation
+
+| Document | Purpose |
 |---|---|
-| | |
-
-## Current status
-
-- [x] Repository initialized with base structure
-- [ ] Problem statement chosen
-- [ ] Database schema designed
-- [ ] API contract defined
-- [ ] Feature work started
-
-## Important decisions
-
-See `docs/DECISIONS.md` for the full log.
-
-## Constraints
-
-- Local relational database (PostgreSQL) — no Firebase/Supabase/BaaS.
-- Minimal third-party APIs/dependencies.
-- Build core functionality ourselves rather than relying on external
-  services where reasonably possible.
-
-## Known issues
-
-None yet.
+| `docs/ARCHITECTURE.md` | System architecture and technical structure |
+| `docs/DATABASE.md` | Database design, schema and relationships |
+| `docs/API.md` | Backend API endpoints |
+| `docs/DECISIONS.md` | Significant technical decisions |
