@@ -25,7 +25,9 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage portalKey="employee" />} />
+          <Route path="/admin/login" element={<LoginPage portalKey="staff" />} />
+          <Route path="/hr/login" element={<Navigate to="/admin/login" replace />} />
           <Route path="/signup" element={<SignupPage />} />
 
           <Route element={<ProtectedRoute />}>
