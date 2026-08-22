@@ -4,7 +4,7 @@
   gap: var(--space-3);
   padding: var(--space-3);
   border-radius: var(--radius-md);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--border-default);
   margin-top: var(--space-3);
   padding-top: var(--space-4);
 }
@@ -19,7 +19,7 @@
 .name {
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
-  color: #fff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -27,18 +27,18 @@
 
 .role {
   font-size: 11px;
-  color: var(--color-gray-400);
+  color: var(--text-tertiary);
   text-transform: capitalize;
 }
 
 .logoutButton {
-  color: var(--color-gray-400);
+  color: var(--text-tertiary);
   flex-shrink: 0;
   border-radius: var(--radius-sm);
   padding: 6px;
 }
 
 .logoutButton:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  background: var(--surface-sunken);
 }

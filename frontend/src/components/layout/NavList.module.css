@@ -22,23 +22,31 @@
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  color: var(--color-gray-300);
+  color: var(--text-secondary);
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .link:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  background: var(--surface-sunken);
   text-decoration: none;
 }
 
+.link .icon {
+  color: var(--text-tertiary);
+}
+
 .linkActive {
-  color: #fff;
-  background: var(--color-brand-600);
+  color: var(--color-brand-800);
+  background: var(--color-brand-50);
 }
 
 .linkActive:hover {
-  background: var(--color-brand-600);
+  background: var(--color-brand-50);
+}
+
+.linkActive .icon {
+  color: var(--color-brand-600);
 }
 
 .icon {

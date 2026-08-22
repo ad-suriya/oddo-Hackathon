@@ -29,7 +29,7 @@
   height: 34px;
   border-radius: var(--radius-sm);
   background: var(--color-brand-600);
-  color: #fff;
+  color: var(--text-on-brand);
   display: flex;
   align-items: center;
   justify-content: center;

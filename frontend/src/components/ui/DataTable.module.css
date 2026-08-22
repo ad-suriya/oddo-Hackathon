@@ -21,7 +21,7 @@
   font-weight: var(--weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   background: var(--surface-sunken);
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--border-default);

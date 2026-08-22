@@ -40,7 +40,7 @@
 
 .input:disabled {
   background: var(--surface-sunken);
-  color: var(--text-tertiary);
+  color: var(--text-disabled);
   cursor: not-allowed;
 }
 

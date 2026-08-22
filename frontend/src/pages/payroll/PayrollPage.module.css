@@ -5,21 +5,23 @@
   flex-wrap: wrap;
   gap: var(--space-4);
   padding: var(--space-6);
-  background: var(--color-brand-50);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-xs);
 }
 
 .netLabel {
   font-size: var(--text-sm);
-  color: var(--color-brand-700);
+  color: var(--text-secondary);
   font-weight: var(--weight-medium);
 }
 
 .netValue {
   font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
-  color: var(--color-brand-800);
+  color: var(--text-primary);
 }
 
 .breakdown {

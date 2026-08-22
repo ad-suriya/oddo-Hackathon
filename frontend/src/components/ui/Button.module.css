@@ -46,6 +46,16 @@
   background: var(--color-brand-700);
 }
 
+.primary:active:not(:disabled) {
+  background: var(--color-brand-800);
+}
+
+.primary:disabled {
+  background: var(--color-brand-200);
+  color: var(--color-gray-0);
+  opacity: 1;
+}
+
 .secondary {
   background: var(--surface-card);
   color: var(--text-primary);
@@ -69,7 +79,7 @@
 
 .danger {
   background: var(--color-danger-600);
-  color: #fff;
+  color: var(--text-on-brand);
 }
 
 .danger:hover:not(:disabled) {
