@@ -11,13 +11,15 @@
 // to it in other terminals.
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { existsSync } from "node:fs";
 import EmbeddedPostgres from "embedded-postgres";
 import { config } from "../src/config/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const databaseDir = path.resolve(__dirname, "../.pgdata");
 
 const pg = new EmbeddedPostgres({
-  databaseDir: path.resolve(__dirname, "../.pgdata"),
+  databaseDir,
   user: config.db.user,
   password: config.db.password || "postgres",
   port: config.db.port,
@@ -25,8 +27,15 @@ const pg = new EmbeddedPostgres({
 });
 
 async function main() {
-  console.log(`Initializing embedded PostgreSQL at ${path.resolve(__dirname, "../.pgdata")} ...`);
-  await pg.initialise();
+  // initialise() runs initdb, which refuses to run against a non-empty
+  // directory — only run it the first time this data dir is used, so
+  // `npm run dev:db` is safe to re-run against an existing cluster.
+  if (existsSync(path.join(databaseDir, "PG_VERSION"))) {
+    console.log(`Existing PostgreSQL data directory found at ${databaseDir}, skipping initdb.`);
+  } else {
+    console.log(`Initializing embedded PostgreSQL at ${databaseDir} ...`);
+    await pg.initialise();
+  }
   await pg.start();
   console.log(`PostgreSQL is running on 127.0.0.1:${config.db.port}`);
 
