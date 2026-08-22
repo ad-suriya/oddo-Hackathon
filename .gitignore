@@ -1,0 +1,27 @@
+# --- Environment / secrets ---
+.env
+.env.local
+.env.*.local
+
+# --- Dependencies ---
+node_modules/
+
+# --- Build output ---
+dist/
+build/
+
+# --- Logs ---
+*.log
+npm-debug.log*
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+
+# --- Editor / IDE ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# --- Database local data (if any local Postgres data dir is ever created) ---
+database/data/
