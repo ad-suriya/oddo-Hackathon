@@ -4,8 +4,8 @@
   justify-content: space-between;
   height: var(--header-height);
   padding: 0 var(--space-4);
-  background: var(--surface-card);
-  border-bottom: 1px solid var(--border-default);
+  background: var(--surface-sidebar);
+  border-bottom: 1px solid var(--color-blue-300);
   position: sticky;
   top: 0;
   z-index: var(--z-header);
@@ -44,7 +44,7 @@
 
 .menuButton:hover {
   color: var(--text-primary);
-  background: var(--surface-sunken);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 @media (max-width: 880px) {

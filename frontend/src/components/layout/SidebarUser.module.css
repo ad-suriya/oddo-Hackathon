@@ -4,7 +4,7 @@
   gap: var(--space-3);
   padding: var(--space-3);
   border-radius: var(--radius-md);
-  border-top: 1px solid var(--border-default);
+  border-top: 1px solid var(--color-blue-300);
   margin-top: var(--space-3);
   padding-top: var(--space-4);
 }
@@ -40,5 +40,5 @@
 
 .logoutButton:hover {
   color: var(--text-primary);
-  background: var(--surface-sunken);
+  background: rgba(255, 255, 255, 0.6);
 }

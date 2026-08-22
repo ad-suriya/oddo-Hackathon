@@ -22,7 +22,7 @@
 .textarea:focus {
   outline: none;
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px var(--color-brand-100);
+  box-shadow: 0 0 0 3px var(--color-blue-100);
 }
 
 .textarea[aria-invalid="true"] {

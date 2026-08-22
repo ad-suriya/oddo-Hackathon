@@ -28,25 +28,26 @@
 
 .link:hover {
   color: var(--text-primary);
-  background: var(--surface-sunken);
+  background: rgba(255, 255, 255, 0.5);
   text-decoration: none;
 }
 
 .link .icon {
-  color: var(--text-tertiary);
+  color: var(--color-blue-800);
 }
 
 .linkActive {
-  color: var(--color-brand-800);
-  background: var(--color-brand-50);
+  color: var(--color-blue-700);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-xs);
 }
 
 .linkActive:hover {
-  background: var(--color-brand-50);
+  background: var(--surface-card);
 }
 
 .linkActive .icon {
-  color: var(--color-brand-600);
+  color: var(--color-blue-600);
 }
 
 .icon {

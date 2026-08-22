@@ -43,6 +43,12 @@ h4 {
   color: var(--text-primary);
 }
 
+/* Page-level hero titles get the brand's crimson heading color; nested
+   card/section headings (h2-h4) stay neutral so hierarchy still reads. */
+h1 {
+  color: var(--text-heading);
+}
+
 ul,
 ol {
   margin: 0;
