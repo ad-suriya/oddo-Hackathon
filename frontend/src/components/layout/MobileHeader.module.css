@@ -5,7 +5,7 @@
   height: var(--header-height);
   padding: 0 var(--space-4);
   background: var(--surface-sidebar);
-  border-bottom: 1px solid var(--color-blue-300);
+  border-bottom: 1px solid var(--border-default);
   position: sticky;
   top: 0;
   z-index: var(--z-header);
@@ -16,20 +16,8 @@
   align-items: center;
   gap: var(--space-2);
   color: var(--text-primary);
+  font-family: var(--font-display);
   font-weight: var(--weight-semibold);
-}
-
-.logoMark {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  background: var(--color-brand-600);
-  color: var(--text-on-brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--weight-bold);
-  font-size: var(--text-sm);
 }
 
 .menuButton {
@@ -44,7 +32,7 @@
 
 .menuButton:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--color-gray-100);
 }
 
 @media (max-width: 880px) {

@@ -329,7 +329,7 @@ function PayrollRow({ label, value, strong }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", padding: "var(--space-3) var(--space-5)", borderBottom: "1px solid var(--border-default)" }}>
       <span style={{ color: "var(--text-secondary)" }}>{label}</span>
-      <span style={{ fontWeight: strong ? 700 : 500 }}>{value}</span>
+      <span style={{ fontWeight: strong ? 700 : 500, fontVariantNumeric: "tabular-nums" }}>{value}</span>
     </div>
   );
 }

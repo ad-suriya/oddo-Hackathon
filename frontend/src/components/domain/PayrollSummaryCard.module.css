@@ -14,7 +14,9 @@
 
 .amount {
   display: block;
+  font-family: var(--font-display);
   font-size: var(--text-2xl);
-  font-weight: var(--weight-bold);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
   color: var(--text-primary);
 }

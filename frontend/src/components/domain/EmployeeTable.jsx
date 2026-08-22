@@ -30,7 +30,7 @@ export default function EmployeeTable({ employees, attendanceByEmployeeId = {}, 
       ),
     },
     { key: "department", header: "Department", render: (row) => row.department || "—" },
-    { key: "jobTitle", header: "Role", render: (row) => <Badge tone="neutral">{row.jobTitle || "—"}</Badge> },
+    { key: "jobTitle", header: "Role", render: (row) => row.jobTitle || "—" },
     {
       key: "attendance",
       header: "Attendance today",

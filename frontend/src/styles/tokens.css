@@ -67,11 +67,12 @@
   --color-info-500: var(--color-blue-500);
   --color-info-600: var(--color-blue-700);
 
-  /* Surface */
-  --surface-page: #e0f2fe;
+  /* Surface — cream leads as the dominant plane; sky-blue is reserved for
+     the active/info accent role described above, not a background wash. */
+  --surface-page: #f7f2e7;
   --surface-card: var(--color-gray-0);
-  --surface-sunken: var(--color-blue-50);
-  --surface-sidebar: var(--color-blue-200);
+  --surface-sunken: #f1ebdc;
+  --surface-sidebar: #fffdf8;
   --surface-highlight: #fef9c3;
   --surface-overlay: rgba(15, 23, 42, 0.48);
 
@@ -117,6 +118,9 @@
   /* Typography */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* Display face — page titles and headline numbers only; every other
+     label, table, and control stays on --font-sans. */
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
 
   --text-xs: 12px;
   --text-sm: 13px;

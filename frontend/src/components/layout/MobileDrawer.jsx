@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import Icon from "../ui/Icon.jsx";
+import LogoMark from "../ui/LogoMark.jsx";
 import NavList from "./NavList.jsx";
 import SidebarUser from "./SidebarUser.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
@@ -25,7 +26,7 @@ export default function MobileDrawer({ open, onClose }) {
       <div className={styles.drawer} role="dialog" aria-modal="true" aria-label="Navigation menu">
         <div className={styles.brandRow}>
           <div className={styles.brand}>
-            <span className={styles.logoMark}>D</span>
+            <LogoMark size={30} />
             Dayflow
           </div>
           <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Close menu">

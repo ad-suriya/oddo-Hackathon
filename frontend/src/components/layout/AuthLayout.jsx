@@ -1,3 +1,4 @@
+import LogoMark from "../ui/LogoMark.jsx";
 import styles from "./AuthLayout.module.css";
 
 export default function AuthLayout({ title, subtitle, children, footer }) {
@@ -5,7 +6,7 @@ export default function AuthLayout({ title, subtitle, children, footer }) {
     <div className={styles.page}>
       <div className={styles.card}>
         <div className={styles.brand}>
-          <span className={styles.logoMark}>D</span>
+          <LogoMark size={34} />
           <span className={styles.brandName}>Dayflow</span>
         </div>
         <h1 className={styles.title}>{title}</h1>

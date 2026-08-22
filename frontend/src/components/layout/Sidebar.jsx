@@ -1,5 +1,6 @@
 import NavList from "./NavList.jsx";
 import SidebarUser from "./SidebarUser.jsx";
+import LogoMark from "../ui/LogoMark.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 import styles from "./Sidebar.module.css";
 
@@ -8,7 +9,7 @@ export default function Sidebar() {
   return (
     <aside className={styles.sidebar} aria-label="Primary navigation">
       <div className={styles.brand}>
-        <span className={styles.logoMark}>D</span>
+        <LogoMark size={30} />
         <span className={styles.brandName}>Dayflow</span>
       </div>
       <div className={styles.navScroll}>

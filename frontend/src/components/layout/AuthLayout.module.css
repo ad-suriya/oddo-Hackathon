@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-6);
-  background: linear-gradient(180deg, var(--color-gray-50) 0%, var(--surface-page) 100%);
+  background: linear-gradient(180deg, var(--color-gray-0) 0%, var(--surface-page) 100%);
 }
 
 .card {
@@ -24,20 +24,8 @@
   margin-bottom: var(--space-6);
 }
 
-.logoMark {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-sm);
-  background: var(--color-brand-600);
-  color: var(--text-on-brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--weight-bold);
-  font-size: var(--text-md);
-}
-
 .brandName {
+  font-family: var(--font-display);
   font-size: var(--text-lg);
   font-weight: var(--weight-semibold);
   color: var(--text-primary);

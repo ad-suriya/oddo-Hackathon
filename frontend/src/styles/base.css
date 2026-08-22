@@ -43,10 +43,15 @@ h4 {
   color: var(--text-primary);
 }
 
-/* Page-level hero titles get the brand's crimson heading color; nested
-   card/section headings (h2-h4) stay neutral so hierarchy still reads. */
+/* Page-level hero titles get the brand's crimson heading color and the
+   display serif; nested card/section headings (h2-h4) stay neutral,
+   sans-serif so hierarchy still reads and the serif stays a headline-only
+   accent rather than the default voice of the app. */
 h1 {
   color: var(--text-heading);
+  font-family: var(--font-display);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
 }
 
 ul,
