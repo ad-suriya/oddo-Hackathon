@@ -1,0 +1,5 @@
+.select {
+  appearance: none;
+  background: var(--surface-card);
+  cursor: pointer;
+}

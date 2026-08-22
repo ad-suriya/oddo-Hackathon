@@ -1,0 +1,44 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: var(--space-3);
+  padding-top: var(--space-4);
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role {
+  font-size: 11px;
+  color: var(--color-gray-400);
+  text-transform: capitalize;
+}
+
+.logoutButton {
+  color: var(--color-gray-400);
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  padding: 6px;
+}
+
+.logoutButton:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}

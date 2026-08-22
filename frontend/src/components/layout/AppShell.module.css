@@ -1,0 +1,21 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+.content {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-8) var(--space-16);
+}
+
+@media (max-width: 880px) {
+  .content {
+    padding: var(--space-5) var(--space-4) var(--space-12);
+  }
+}

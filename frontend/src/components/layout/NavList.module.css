@@ -1,0 +1,47 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.groupLabel {
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  padding: var(--space-2) var(--space-3) 6px;
+  margin-top: var(--space-3);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 9px var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-gray-300);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+
+.linkActive {
+  color: #fff;
+  background: var(--color-brand-600);
+}
+
+.linkActive:hover {
+  background: var(--color-brand-600);
+}
+
+.icon {
+  flex-shrink: 0;
+  display: flex;
+}

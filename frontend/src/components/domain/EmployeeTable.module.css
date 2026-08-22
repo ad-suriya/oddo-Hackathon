@@ -1,0 +1,19 @@
+.tableOnly {
+  display: block;
+}
+
+.cardsOnly {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (max-width: 720px) {
+  .tableOnly {
+    display: none;
+  }
+
+  .cardsOnly {
+    display: flex;
+  }
+}
