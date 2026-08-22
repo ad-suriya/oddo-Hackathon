@@ -34,7 +34,7 @@ export async function createEmployee({ userId, employeeCode, fullName }) {
   return findEmployeeById(rows[0].id);
 }
 
-export async function listEmployees({ search, department } = {}) {
+function buildEmployeeFilter({ search, department }) {
   const conditions = [];
   const params = [];
   if (department) {
@@ -46,9 +46,23 @@ export async function listEmployees({ search, department } = {}) {
     const p = `$${params.length}`;
     conditions.push(`(LOWER(e.full_name) LIKE ${p} OR LOWER(e.employee_code) LIKE ${p} OR LOWER(u.email) LIKE ${p})`);
   }
-  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
-  const { rows } = await pool.query(`${JOIN_SELECT} ${where} ORDER BY e.full_name`, params);
+  return { where: conditions.length ? `WHERE ${conditions.join(" AND ")}` : "", params };
+}
+
+export async function listEmployees({ search, department, limit, offset } = {}) {
+  const { where, params } = buildEmployeeFilter({ search, department });
+  const paged = [...params, limit, offset];
+  const { rows } = await pool.query(
+    `${JOIN_SELECT} ${where} ORDER BY e.full_name LIMIT $${paged.length - 1} OFFSET $${paged.length}`,
+    paged
+  );
   return rows;
+}
+
+export async function countEmployees({ search, department } = {}) {
+  const { where, params } = buildEmployeeFilter({ search, department });
+  const { rows } = await pool.query(`SELECT count(*) FROM employees e JOIN users u ON u.id = e.user_id ${where}`, params);
+  return Number(rows[0].count);
 }
 
 const UPDATABLE_COLUMNS = {

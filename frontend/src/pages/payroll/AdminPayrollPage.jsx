@@ -5,6 +5,7 @@ import DataTable from "../../components/ui/DataTable.jsx";
 import Button from "../../components/ui/Button.jsx";
 import Avatar from "../../components/ui/Avatar.jsx";
 import Icon from "../../components/ui/Icon.jsx";
+import Pagination from "../../components/ui/Pagination.jsx";
 import { PaymentStatusBadge } from "../../components/ui/StatusBadge.jsx";
 import PayrollEditModal from "../../components/domain/PayrollEditModal.jsx";
 import { useAsync } from "../../hooks/useAsync.js";
@@ -12,10 +13,13 @@ import { useToast } from "../../context/ToastContext.jsx";
 import { payrollService } from "../../services/payrollService.js";
 import { formatCurrency } from "../../utils/formatters.js";
 
+const PAGE_SIZE = 20;
+
 export default function AdminPayrollPage() {
   const navigate = useNavigate();
   const toast = useToast();
-  const payrollQuery = useAsync(() => payrollService.list(), []);
+  const [page, setPage] = useState(1);
+  const payrollQuery = useAsync(() => payrollService.list({ page, limit: PAGE_SIZE }), [page]);
   const [editing, setEditing] = useState(null);
 
   async function handleSave(values) {
@@ -69,13 +73,22 @@ export default function AdminPayrollPage() {
 
       <DataTable
         columns={columns}
-        rows={payrollQuery.data}
+        rows={payrollQuery.data?.items}
         loading={payrollQuery.loading}
         error={payrollQuery.error}
         onRetry={payrollQuery.refetch}
         emptyIcon="payroll"
         emptyTitle="No payroll records found."
       />
+      {payrollQuery.data && (
+        <Pagination
+          page={payrollQuery.data.page}
+          limit={payrollQuery.data.limit}
+          total={payrollQuery.data.total}
+          totalPages={payrollQuery.data.totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
       <PayrollEditModal
         open={Boolean(editing)}

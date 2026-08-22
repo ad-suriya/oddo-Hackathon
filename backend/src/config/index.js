@@ -1,4 +1,13 @@
-import "dotenv/config";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
+
+// Backend + database config lives in a single .env at the repo root (see
+// ../../../.env.example), not inside backend/, so it's shared with the
+// migrate/seed scripts. Resolve it by file location, not process.cwd(),
+// since `npm run dev` etc. are run with cwd = backend/.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 const nodeEnv = process.env.NODE_ENV || "development";
 

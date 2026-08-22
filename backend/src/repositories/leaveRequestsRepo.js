@@ -12,6 +12,23 @@ const JOIN_SELECT = `
   LEFT JOIN employees rev ON rev.id = lr.reviewed_by
 `;
 
+// Only pending/approved requests block a new one — a rejected request for
+// the same dates shouldn't stop the employee from resubmitting. Overlap is
+// the standard interval test: existing.start <= new.end AND existing.end
+// >= new.start.
+export async function findOverlappingLeaveRequest(employeeId, startDate, endDate) {
+  const { rows } = await pool.query(
+    `SELECT id FROM leave_requests
+     WHERE employee_id = $1
+       AND status IN ('pending', 'approved')
+       AND start_date <= $3
+       AND end_date >= $2
+     LIMIT 1`,
+    [employeeId, startDate, endDate]
+  );
+  return rows[0] || null;
+}
+
 export async function createLeaveRequest({ employeeId, leaveType, startDate, endDate, remarks }) {
   const { rows } = await pool.query(
     `INSERT INTO leave_requests (employee_id, leave_type, start_date, end_date, remarks)

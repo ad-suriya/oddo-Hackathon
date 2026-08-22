@@ -3,6 +3,7 @@ import { apiClient } from "./client.js";
 export const payrollApi = {
   getMine: () => apiClient.get("/payroll/me"),
   list: (params = {}) => apiClient.get(`/payroll${toQueryString(params)}`),
+  getById: (employeeId) => apiClient.get(`/payroll/${employeeId}`),
   update: (employeeId, payload) => apiClient.patch(`/payroll/${employeeId}`, payload),
 };
 

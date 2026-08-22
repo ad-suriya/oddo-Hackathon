@@ -21,10 +21,15 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const firstName = user?.employee?.fullName?.split(" ")[0] || "there";
 
-  const employeesQuery = useAsync(() => employeeService.list(), []);
+  // The dashboard aggregates across the whole org (stat totals, the
+  // "employee overview" preview, payroll-processed counts) rather than
+  // paging through it, so it asks for the max page size instead of the
+  // list pages' default — see EmployeesPage.jsx/AdminPayrollPage.jsx for
+  // the paginated table views.
+  const employeesQuery = useAsync(() => employeeService.list({ limit: 100 }), []);
   const attendanceQuery = useAsync(() => attendanceService.list(), []);
   const leaveQuery = useAsync(() => leaveService.list(), []);
-  const payrollQuery = useAsync(() => payrollService.list(), []);
+  const payrollQuery = useAsync(() => payrollService.list({ limit: 100 }), []);
 
   const attendanceByEmployeeId = useMemo(() => {
     const map = {};
@@ -45,11 +50,15 @@ export default function AdminDashboard() {
   const presentToday = (attendanceQuery.data || []).filter((a) => a.status === "present" || a.status === "half_day").length;
   const onLeaveToday = (attendanceQuery.data || []).filter((a) => a.status === "leave").length;
   const pendingLeave = (leaveQuery.data || []).filter((r) => r.status === "pending");
-  const payrollProcessed = (payrollQuery.data || []).filter((p) => p.paymentStatus === "paid").length;
-  const totalEmployees = employeesQuery.data?.length ?? null;
+  // .total is the true org-wide count from the API; payrollProcessed/
+  // unconfiguredPayroll below only see the fetched page (limit: 100 above),
+  // so they're exact up to 100 employees and an approximation beyond that.
+  const totalEmployees = employeesQuery.data?.total ?? null;
+  const payrollItems = payrollQuery.data?.items || [];
+  const payrollProcessed = payrollItems.filter((p) => p.paymentStatus === "paid").length;
 
   const absentToday = (attendanceQuery.data || []).filter((a) => a.status === "absent");
-  const unconfiguredPayroll = (payrollQuery.data || []).filter((p) => p.paymentStatus !== "paid");
+  const unconfiguredPayroll = payrollItems.filter((p) => p.paymentStatus !== "paid");
 
   const loadingCore = employeesQuery.loading || attendanceQuery.loading || leaveQuery.loading || payrollQuery.loading;
 
@@ -103,7 +112,7 @@ export default function AdminDashboard() {
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <FlagRow label={`${absentToday.length} employee(s) absent today`} to="/admin/attendance" icon="attendance" />
                 <FlagRow label={`${unconfiguredPayroll.length} payroll record(s) need review`} to="/admin/payroll" icon="payroll" />
-                <FlagRow label={`${payrollProcessed} of ${payrollQuery.data?.length ?? 0} payroll records processed`} to="/admin/payroll" icon="checkCircle" last />
+                <FlagRow label={`${payrollProcessed} of ${payrollQuery.data?.total ?? 0} payroll records processed`} to="/admin/payroll" icon="checkCircle" last />
               </div>
             </CardBody>
           </Card>
@@ -113,7 +122,7 @@ export default function AdminDashboard() {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Employee overview</h2>
         <EmployeeTable
-          employees={employeesQuery.data}
+          employees={employeesQuery.data?.items}
           attendanceByEmployeeId={attendanceByEmployeeId}
           leaveStatusByEmployeeId={leaveStatusByEmployeeId}
           loading={employeesQuery.loading}

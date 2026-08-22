@@ -1,10 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { NotFoundError, ValidationError } from "../utils/errors.js";
+import { ConflictError, NotFoundError, ValidationError } from "../utils/errors.js";
 import { validateLeaveRequestPayload } from "../validation/leaveValidation.js";
 import { serializeLeaveRequest } from "../serializers/leaveSerializer.js";
 import {
   createLeaveRequest,
   findLeaveRequestById,
+  findOverlappingLeaveRequest,
   listForEmployee,
   listAll,
   reviewLeaveRequest,
@@ -13,6 +14,11 @@ import {
 export const create = asyncHandler(async function create(req, res) {
   const { leaveType, startDate, endDate, remarks } = req.body || {};
   validateLeaveRequestPayload({ leaveType, startDate, endDate });
+
+  const overlapping = await findOverlappingLeaveRequest(req.currentEmployee.id, startDate, endDate);
+  if (overlapping) {
+    throw new ConflictError("You already have a pending or approved leave request that overlaps these dates.");
+  }
 
   const record = await createLeaveRequest({
     employeeId: req.currentEmployee.id,

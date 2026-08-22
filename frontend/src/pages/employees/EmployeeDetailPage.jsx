@@ -261,9 +261,19 @@ function LeaveTab({ employeeId }) {
 
 function PayrollTab({ employeeId }) {
   const toast = useToast();
-  const query = useAsync(() => payrollService.list(), []);
+  // GET /payroll/:employeeId directly, rather than paging through the full
+  // (now paginated) list and filtering client-side — that pattern would
+  // silently miss this employee whenever they fell outside the first page.
+  const query = useAsync(async () => {
+    try {
+      return await payrollService.getById(employeeId);
+    } catch (err) {
+      if (err.status === 404) return null;
+      throw err;
+    }
+  }, [employeeId]);
   const [editing, setEditing] = useState(false);
-  const record = useMemo(() => (query.data || []).find((p) => p.employeeId === employeeId), [query.data, employeeId]);
+  const record = query.data;
 
   async function handleSave(values) {
     await payrollService.update(employeeId, values);

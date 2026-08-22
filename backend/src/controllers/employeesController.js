@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { NotFoundError } from "../utils/errors.js";
 import { serializeEmployee } from "../serializers/employeeSerializer.js";
+import { parsePagination, paginatedResponse } from "../utils/pagination.js";
 import {
   assertOnlyAllowedFields,
   validatePhone,
@@ -8,6 +9,7 @@ import {
   ADMIN_EDITABLE_FIELDS,
 } from "../validation/employeeValidation.js";
 import {
+  countEmployees,
   findEmployeeById,
   listEmployees,
   updateEmployee,
@@ -30,8 +32,12 @@ export const updateMe = asyncHandler(async function updateMe(req, res) {
 
 export const list = asyncHandler(async function list(req, res) {
   const { search, department } = req.query;
-  const rows = await listEmployees({ search, department });
-  res.json(rows.map(serializeEmployee));
+  const pagination = parsePagination(req.query);
+  const [rows, total] = await Promise.all([
+    listEmployees({ search, department, limit: pagination.limit, offset: pagination.offset }),
+    countEmployees({ search, department }),
+  ]);
+  res.json(paginatedResponse(rows.map(serializeEmployee), pagination, total));
 });
 
 export const getById = asyncHandler(async function getById(req, res) {

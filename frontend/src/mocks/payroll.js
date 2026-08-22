@@ -1,5 +1,5 @@
 import { db, persist } from "./db.js";
-import { badRequest, delay, forbidden, notFound, unauthorized } from "./utils.js";
+import { badRequest, delay, forbidden, notFound, paginate, unauthorized } from "./utils.js";
 import { isAdminRole } from "../utils/constants.js";
 
 function currentSession() {
@@ -46,11 +46,23 @@ export const mockPayrollApi = {
     return toDto(salary);
   },
 
-  async list() {
+  async list({ page, limit } = {}) {
     await delay();
     const { user } = currentSession();
     if (!isAdminRole(user.role)) throw forbidden("Only Admin/HR can view payroll for all employees.");
-    return db.salaries.map(toDto).sort((a, b) => (a.employee?.fullName || "").localeCompare(b.employee?.fullName || ""));
+    const results = db.salaries
+      .map(toDto)
+      .sort((a, b) => (a.employee?.fullName || "").localeCompare(b.employee?.fullName || ""));
+    return paginate(results, { page, limit });
+  },
+
+  async getById(employeeId) {
+    await delay();
+    const { user } = currentSession();
+    if (!isAdminRole(user.role)) throw forbidden("Only Admin/HR can view payroll for other employees.");
+    const salary = db.salaries.find((s) => s.employeeId === employeeId);
+    if (!salary) throw notFound("Payroll information not found.");
+    return toDto(salary);
   },
 
   async update(employeeId, payload) {

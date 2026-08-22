@@ -77,9 +77,23 @@ Cookie-based, server-side sessions (opaque token, hashed at rest in a new
 | ------ | ----------------- | ---------------------- | ---- | -------- |
 | GET    | `/employees/me`   | Get own profile         | Yes  | Employee |
 | PATCH  | `/employees/me`   | Update own profile      | Yes  | Employee |
-| GET    | `/employees`      | Get employees           | Yes  | Admin/HR |
+| GET    | `/employees`      | Get employees (paginated) | Yes  | Admin/HR |
 | GET    | `/employees/:id`  | Get employee details    | Yes  | Admin/HR |
 | PATCH  | `/employees/:id`  | Update employee         | Yes  | Admin/HR |
+
+`GET /employees` accepts `?search=`, `?department=`, `?page=` (default 1),
+and `?limit=` (default 20, max 100), and returns a paginated envelope
+instead of a bare array:
+
+```json
+{
+  "items": [ { "id": "...", "fullName": "...", "..." : "..." } ],
+  "page": 1,
+  "limit": 20,
+  "total": 42,
+  "totalPages": 3
+}
+```
 
 ---
 
@@ -112,8 +126,13 @@ Cookie-based, server-side sessions (opaque token, hashed at rest in a new
 | Method | Endpoint                | Description                          | Auth | Role     |
 | ------ | ------------------------- | --------------------------------------- | ---- | -------- |
 | GET    | `/payroll/me`              | Get own salary/payroll information       | Yes  | Employee |
-| GET    | `/payroll`                 | Get payroll information                 | Yes  | Admin/HR |
+| GET    | `/payroll`                 | Get payroll information (paginated)     | Yes  | Admin/HR |
+| GET    | `/payroll/:employeeId`     | Get salary/payroll for one employee     | Yes  | Admin/HR |
 | PATCH  | `/payroll/:employeeId`     | Update salary information               | Yes  | Admin/HR |
+
+`GET /payroll` accepts `?page=` (default 1) and `?limit=` (default 20, max
+100), and returns the same paginated envelope described under
+[§6 Employee](#6-employee) (`items`/`page`/`limit`/`total`/`totalPages`).
 
 `netPay`, `payPeriod`, and `paymentStatus` are computed at read time, not
 stored columns — see `docs/FRONTEND_HANDOFF.md` §11 for the `payPeriod`/

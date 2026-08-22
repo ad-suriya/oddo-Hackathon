@@ -14,9 +14,14 @@ export async function findSalaryByEmployeeId(employeeId) {
   return rows[0] || null;
 }
 
-export async function listAllSalaries() {
-  const { rows } = await pool.query(`${JOIN_SELECT} ORDER BY e.full_name`);
+export async function listAllSalaries({ limit, offset } = {}) {
+  const { rows } = await pool.query(`${JOIN_SELECT} ORDER BY e.full_name LIMIT $1 OFFSET $2`, [limit, offset]);
   return rows;
+}
+
+export async function countSalaries() {
+  const { rows } = await pool.query(`SELECT count(*) FROM employee_salary`);
+  return Number(rows[0].count);
 }
 
 export async function upsertSalary(employeeId, { basicPay, allowances, deductions, currency = "INR", updatedBy }) {

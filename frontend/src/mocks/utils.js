@@ -46,3 +46,19 @@ export function isoDaysFromNow(days) {
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
 }
+
+// Mirrors the real API's paginated envelope (see backend/src/utils/pagination.js
+// and docs/API.md §6/§9) so USE_MOCK_API can flip without page-level changes.
+export function paginate(items, { page, limit } = {}) {
+  const safePage = Number.isFinite(Number(page)) && Number(page) >= 1 ? Number(page) : 1;
+  const safeLimit = Number.isFinite(Number(limit)) && Number(limit) >= 1 ? Math.min(Number(limit), 100) : 20;
+  const total = items.length;
+  const start = (safePage - 1) * safeLimit;
+  return {
+    items: items.slice(start, start + safeLimit),
+    page: safePage,
+    limit: safeLimit,
+    total,
+    totalPages: total === 0 ? 0 : Math.ceil(total / safeLimit),
+  };
+}

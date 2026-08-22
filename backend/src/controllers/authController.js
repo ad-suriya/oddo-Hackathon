@@ -2,7 +2,7 @@ import { config } from "../config/index.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ConflictError, UnauthorizedError, ValidationError } from "../utils/errors.js";
 import { validateSignupPayload, validateLoginPayload } from "../validation/authValidation.js";
-import { hashPassword, verifyPassword } from "../utils/password.js";
+import { hashPassword, verifyPasswordOrDummy } from "../utils/password.js";
 import { generateSessionToken, hashSessionToken } from "../utils/session.js";
 import { serializeAuthUser } from "../serializers/authSerializer.js";
 import { findUserByEmail, createUser } from "../repositories/usersRepo.js";
@@ -68,7 +68,10 @@ export const login = asyncHandler(async function login(req, res) {
 
   const normalizedEmail = email.trim().toLowerCase();
   const user = await findUserByEmail(normalizedEmail);
-  if (!user || !(await verifyPassword(password, user.password_hash))) {
+  // Always run bcrypt, even for an unknown email (against a dummy hash), so
+  // response time doesn't reveal whether the address is registered.
+  const passwordOk = await verifyPasswordOrDummy(password, user?.password_hash);
+  if (!user || !passwordOk) {
     throw new UnauthorizedError("Incorrect email or password.");
   }
 

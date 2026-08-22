@@ -1,5 +1,5 @@
 import { db, persist } from "./db.js";
-import { badRequest, delay, forbidden, notFound, unauthorized } from "./utils.js";
+import { badRequest, delay, forbidden, notFound, paginate, unauthorized } from "./utils.js";
 import { isAdminRole } from "../utils/constants.js";
 
 function currentSession() {
@@ -56,7 +56,7 @@ export const mockEmployeesApi = {
     return toEmployeeDto(employee);
   },
 
-  async list({ department, search } = {}) {
+  async list({ department, search, page, limit } = {}) {
     await delay();
     const { user } = currentSession();
     if (!isAdminRole(user.role)) throw forbidden("Only Admin/HR can view all employees.");
@@ -71,7 +71,8 @@ export const mockEmployeesApi = {
           (e.email || "").toLowerCase().includes(q)
       );
     }
-    return results.sort((a, b) => a.fullName.localeCompare(b.fullName));
+    results.sort((a, b) => a.fullName.localeCompare(b.fullName));
+    return paginate(results, { page, limit });
   },
 
   async getById(id) {
