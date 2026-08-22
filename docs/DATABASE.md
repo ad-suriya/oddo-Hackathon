@@ -2,25 +2,14 @@
 
 ## 1. Purpose
 
-This document defines the database architecture and data model for Dayflow.
+This document defines the finalized database schema for Dayflow.
 
-Dayflow will use PostgreSQL as its primary relational database.
-
-The database must support:
-
-- Authentication
-- Employee profiles
-- Employee management
-- Attendance
-- Leave management
-- Payroll/salary information
-- Employee documents
+Dayflow uses PostgreSQL (13+) as its primary relational database, accessed
+from the Node.js backend via `pg` (node-postgres) — no ORM.
 
 ---
 
 # 2. Database Principles
-
-The database should follow these principles:
 
 - Use relational modeling.
 - Use primary keys for entities.
@@ -35,307 +24,225 @@ The database should follow these principles:
 
 ---
 
-# 3. Core Domains
-
-The initial domains are:
+# 3. Tables
 
 ```text
-Authentication
-      |
-      v
-Employee
-  /   |    \
- /    |     \
-v     v      v
-Attendance Leave Payroll
-            |
-            v
-        Documents
+users
+  |
+  | 1:1
+  v
+employees
+  |
+  +------< attendance
+  |
+  +------< leave_requests  (reviewed_by --> employees)
+  |
+  +------< employee_salary  (1:1)
+  |
+  +------< employee_documents
 ```
 
-These domains will be represented using PostgreSQL tables.
+Six tables total. No `roles` or `leave_types` lookup tables — those are
+small, fixed vocabularies modeled as native Postgres ENUM types
+(`user_role`, `attendance_status`, `leave_type`, `leave_status`), defined in
+`database/migrations/0003_create_enum_types.sql`.
 
 ---
 
-# 4. Core Entities
+# 4. Tables and Columns
 
-## 4.1 User
+## 4.1 users
 
-Represents an authenticated account.
+Authentication account. One row per login identity — Employee, HR, and
+Admin all authenticate through this table.
 
-Initial conceptual fields:
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID PK | `gen_random_uuid()` |
+| email | CITEXT UNIQUE NOT NULL | case-insensitive |
+| password_hash | TEXT NOT NULL | never plaintext |
+| role | user_role NOT NULL DEFAULT 'employee' | `employee`, `hr`, `admin` |
+| email_verification_token_hash | TEXT NULL | hashed, not the raw token |
+| email_verification_expires_at | TIMESTAMPTZ NULL | |
+| email_verified_at | TIMESTAMPTZ NULL | |
+| created_at / updated_at | TIMESTAMPTZ NOT NULL | |
 
-- ID
-- Email
-- Password hash
-- Role
-- Email verification status
-- Created timestamp
-- Updated timestamp
+**Public signup always inserts `role = 'employee'`**, regardless of what the
+signup form displays. `hr` and `admin` accounts are created out-of-band
+(seed data or an internal invite endpoint the backend restricts to existing
+admins). See [DECISIONS.md](DECISIONS.md) — the requirements doc's literal
+"choose Employee or HR at signup" is a privilege-escalation hole and was
+deliberately not implemented that way.
 
-The exact columns and authentication implementation will be finalized before the first migration.
+## 4.2 employees
+
+HR profile. 1:1 with `users` — every account, including HR/Admin, is staff
+and gets exactly one row here.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID PK | |
+| user_id | UUID UNIQUE NOT NULL FK → users | |
+| employee_code | TEXT UNIQUE NOT NULL | human-readable ID entered at signup |
+| full_name | TEXT NOT NULL | |
+| phone | TEXT NULL | |
+| address | TEXT NULL | employee-editable |
+| job_title | TEXT NULL | |
+| department | TEXT NULL | |
+| date_joined | DATE NULL | |
+| profile_picture_url | TEXT NULL | employee-editable |
+| created_at / updated_at | TIMESTAMPTZ NOT NULL | |
+
+## 4.3 attendance
+
+| Column | Type | Notes |
+|---|---|---|
+| id | BIGSERIAL PK | |
+| employee_id | UUID NOT NULL FK → employees ON DELETE CASCADE | |
+| attendance_date | DATE NOT NULL | |
+| check_in_at / check_out_at | TIMESTAMPTZ NULL | |
+| status | attendance_status NOT NULL | `present`, `absent`, `half_day`, `leave` |
+| created_at / updated_at | TIMESTAMPTZ NOT NULL | |
+
+One record per employee per calendar day: `UNIQUE (employee_id, attendance_date)`.
+No multi-session check-in/out within a day for the MVP.
+`CHECK (check_out_at > check_in_at)` when both are set.
+
+## 4.4 leave_requests
+
+| Column | Type | Notes |
+|---|---|---|
+| id | BIGSERIAL PK | |
+| employee_id | UUID NOT NULL FK → employees ON DELETE CASCADE | requester |
+| leave_type | leave_type NOT NULL | `paid`, `sick`, `unpaid` |
+| start_date / end_date | DATE NOT NULL | `CHECK (start_date <= end_date)` |
+| remarks | TEXT NULL | from employee |
+| status | leave_status NOT NULL DEFAULT 'pending' | `pending`, `approved`, `rejected` |
+| reviewed_by | UUID NULL FK → employees ON DELETE SET NULL | the admin/HR who reviewed |
+| reviewer_comment | TEXT NULL | |
+| reviewed_at | TIMESTAMPTZ NULL | |
+| created_at / updated_at | TIMESTAMPTZ NOT NULL | |
+
+## 4.5 employee_salary
+
+Current salary snapshot only — **no history table, no payslip records** for
+the MVP. Updating salary overwrites the row. Payslip generation is listed
+under "Future Enhancements" in the requirements doc, not the MVP scope.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID PK | |
+| employee_id | UUID UNIQUE NOT NULL FK → employees ON DELETE CASCADE | 1:1 |
+| basic_pay / allowances / deductions | NUMERIC(12,2) NOT NULL DEFAULT 0 | all `>= 0` |
+| currency | CHAR(3) NOT NULL DEFAULT 'INR' | ISO 4217, assumption — confirm if wrong |
+| updated_by | UUID NULL FK → users ON DELETE SET NULL | admin/HR who last edited |
+| created_at / updated_at | TIMESTAMPTZ NOT NULL | |
+
+## 4.6 employee_documents
+
+Files are stored on the backend's local filesystem (e.g. `backend/uploads/`);
+only metadata + relative path lives in Postgres. Profile picture is a
+separate single-value column on `employees`, not a row here.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID PK | |
+| employee_id | UUID NOT NULL FK → employees ON DELETE CASCADE | |
+| file_name | TEXT NOT NULL | |
+| file_type | TEXT NOT NULL | MIME type |
+| file_size_bytes | BIGINT NOT NULL | |
+| storage_path | TEXT NOT NULL | relative path on disk |
+| uploaded_by | UUID NULL FK → users ON DELETE SET NULL | |
+| created_at | TIMESTAMPTZ NOT NULL | |
 
 ---
 
-## 4.2 Employee
-
-Represents an employee's HR profile.
-
-Initial conceptual fields:
-
-- ID
-- User reference
-- Name
-- Contact information
-- Address
-- Job information
-- Profile picture
-- Created timestamp
-- Updated timestamp
-
-The exact fields will be finalized during schema design.
-
----
-
-## 4.3 Attendance
-
-Represents an employee attendance record.
-
-Initial conceptual fields:
-
-- ID
-- Employee reference
-- Date
-- Check-in time
-- Check-out time
-- Status
-- Created timestamp
-- Updated timestamp
-
-Valid attendance statuses:
+# 5. Relationships and Cascading
 
 ```text
-Present
-Absent
-Half-day
-Leave
+users --1:1--> employees                 ON DELETE CASCADE
+employees --1:N--> attendance            ON DELETE CASCADE
+employees --1:N--> leave_requests        ON DELETE CASCADE (as requester)
+employees --1:1--> employee_salary       ON DELETE CASCADE
+employees --1:N--> employee_documents    ON DELETE CASCADE
+employees --1:N--> leave_requests        ON DELETE SET NULL (as reviewer)
+users     --1:N--> employee_documents    ON DELETE SET NULL (as uploader)
+users     --1:N--> employee_salary       ON DELETE SET NULL (as last editor)
 ```
 
----
-
-## 4.4 Leave Request
-
-Represents a leave request submitted by an employee.
-
-Initial conceptual fields:
-
-- ID
-- Employee reference
-- Leave type
-- Start date
-- End date
-- Remarks
-- Status
-- Admin/HR comment
-- Created timestamp
-- Updated timestamp
-
-Valid leave types:
-
-```text
-Paid
-Sick
-Unpaid
-```
-
-Valid statuses:
-
-```text
-Pending
-Approved
-Rejected
-```
+Deleting an employee's account cascades through their own attendance, leave
+requests, salary, and documents. It does **not** delete leave requests they
+reviewed as HR/Admin, or documents they uploaded for someone else — those
+rows keep the record but null out the `reviewed_by`/`uploaded_by` reference.
 
 ---
 
-## 4.5 Payroll / Salary
+# 6. Constraints
 
-Represents employee salary/payroll information.
-
-The exact model is still being designed.
-
-The database must support:
-
-- Employee salary information
-- Admin/HR salary management
-- Employee access to their own salary information
-
-The team must decide whether the MVP requires:
-
-- Current salary only
-- Salary history
-- Payslips
-- Salary components
-- Payroll records
-
-Do not add unnecessary payroll complexity before the MVP requirements require it.
-
----
-
-## 4.6 Employee Document
-
-Represents a document associated with an employee.
-
-The exact storage architecture is not finalized.
-
-The database may store:
-
-- Document ID
-- Employee ID
-- File name
-- File type
-- File size
-- Storage reference
-- Created timestamp
-
-The actual file may be stored separately from PostgreSQL.
-
----
-
-# 5. Initial Relationships
-
-Conceptual relationship:
-
-```text
-User
- |
- | 1 : 1
- v
-Employee
- |
- +------< Attendance
- |
- +------< Leave Request
- |
- +------< Payroll / Salary
- |
- +------< Employee Document
-```
-
-The exact cardinality must be reviewed before creating the migration.
-
----
-
-# 6. Important Constraints
-
-## Users
-
-- Email should be unique.
-- Role must be restricted to valid roles.
-- Password must never be stored as plaintext.
-
-## Employees
-
-- Employee should reference a valid user where applicable.
-- Required employee fields must not be nullable unnecessarily.
-
-## Attendance
-
-- Attendance must reference an existing employee.
-- Attendance date must be valid.
-- Duplicate records for the same employee/day must be considered.
-- Check-out should not occur before check-in.
-
-## Leave Requests
-
-- Leave request must reference an existing employee.
-- Start date must not be after end date.
-- Leave type must be valid.
-- Status must be valid.
-
-## Payroll
-
-- Payroll/salary records must reference the correct employee.
-- Salary information must only be accessible to authorized users.
+| Table | Constraint |
+|---|---|
+| users | `email` unique (case-insensitive), `role` restricted to ENUM |
+| employees | `user_id` unique, `employee_code` unique |
+| attendance | `(employee_id, attendance_date)` unique, checkout after checkin |
+| leave_requests | `start_date <= end_date`, `status`/`leave_type` restricted to ENUM |
+| employee_salary | `employee_id` unique, all monetary fields `>= 0` |
 
 ---
 
 # 7. Indexing
 
-Indexes should be based on actual query patterns.
+| Index | Reason |
+|---|---|
+| `users.email` (from UNIQUE) | login lookup |
+| `employees.user_id` (from UNIQUE) | profile lookup by account |
+| `employees.employee_code` (from UNIQUE) | lookup by HR-facing ID |
+| `attendance (employee_id, attendance_date)` (from UNIQUE) | own/admin attendance queries, upsert on check-in |
+| `attendance.attendance_date` | admin "everyone's attendance today" dashboard query |
+| `leave_requests.employee_id` | "my leave requests" |
+| `leave_requests.status` | admin "pending approvals" queue |
+| `employee_documents.employee_id` | "my documents" / admin document list |
 
-Potential indexes include:
-
-```text
-users.email
-
-employees.user_id
-
-attendance.employee_id
-attendance.date
-
-leave_requests.employee_id
-leave_requests.status
-
-payroll.employee_id
-```
-
-Indexes must be reviewed after the final schema and API queries are known.
-
-Do not add indexes blindly.
+No indexes added beyond what the API endpoints in `docs/API.md` actually
+query by.
 
 ---
 
 # 8. Database Migrations
 
-All schema changes must use migrations.
-
-Expected structure:
-
 ```text
 database/
-│
 ├── migrations/
-│   ├── 0001_initial_schema.sql
-│   ├── 0002_add_attendance.sql
-│   └── ...
-│
+│   ├── 0001_enable_extensions.sql
+│   ├── 0002_create_updated_at_function.sql
+│   ├── 0003_create_enum_types.sql
+│   ├── 0004_create_users_table.sql
+│   ├── 0005_create_employees_table.sql
+│   ├── 0006_create_attendance_table.sql
+│   ├── 0007_create_leave_requests_table.sql
+│   ├── 0008_create_employee_salary_table.sql
+│   └── 0009_create_employee_documents_table.sql
+├── queries/
+│   └── common_queries.sql
 └── seeds/
-    ├── README.md
-    └── ...
+    └── 0001_seed_dev_data.sql
 ```
 
-Migration requirements:
-
-- Ordered
-- Reproducible
-- Clearly named
-- Reviewed before merging
-- Safe to apply in a new environment
+Apply migrations in filename order against a fresh database. Never edit an
+already-applied migration — write a new one.
 
 ---
 
 # 9. Local PostgreSQL Setup
 
-Required database:
-
-```text
-PostgreSQL
-```
-
-Development database:
-
-```text
-dayflow
-```
-
-Example environment variable:
-
 ```env
 DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/dayflow
 ```
 
-Actual setup commands will be added after the database tooling is selected.
+```bash
+createdb dayflow
+for f in database/migrations/*.sql; do psql "$DATABASE_URL" -f "$f"; done
+psql "$DATABASE_URL" -f database/seeds/0001_seed_dev_data.sql   # optional, dev only
+```
 
 Never commit real database credentials.
 
@@ -343,49 +250,25 @@ Never commit real database credentials.
 
 # 10. Seed Data
 
-Development seed data may contain:
+`database/seeds/0001_seed_dev_data.sql` creates 2 admin/HR accounts, 3
+employee accounts, their salary rows, a few days of attendance, and leave
+requests in `pending`/`approved`/`rejected` states.
 
-- Test Admin/HR
-- Test Employee
-- Sample attendance
-- Sample leave requests
-- Sample salary data
-
-Seed data must never contain real user information or production credentials.
+Password hashes in the seed are **placeholders**, not valid bcrypt/argon2
+hashes — regenerate them with the real hashing function once auth is
+implemented. Seed data must never contain real user information.
 
 ---
 
-# 11. Database Design Workflow
+# 11. Known Assumptions (confirm if wrong)
 
-The database must be designed in this order:
-
-```text
-Requirements
-     ↓
-Identify Domains
-     ↓
-Identify Entities
-     ↓
-Define Relationships
-     ↓
-Define Columns
-     ↓
-Define Primary Keys
-     ↓
-Define Foreign Keys
-     ↓
-Define Constraints
-     ↓
-Review Normalization
-     ↓
-Identify Indexes
-     ↓
-ER Diagram
-     ↓
-Migration
-```
-
-Do not create the first migration before the schema has been reviewed.
+- Admin and HR Officer are two distinct `role` values (`admin`, `hr`) with
+  the same schema-level access; any difference in what they're *allowed* to
+  do is enforced in backend authorization logic, not the database.
+- Salary `currency` defaults to `'INR'`.
+- `employees.job_title` / `department` / `date_joined` are the "job
+  details" the requirements doc mentions but doesn't enumerate — adjust if
+  more fields are needed.
 
 ---
 
@@ -393,15 +276,14 @@ Do not create the first migration before the schema has been reviewed.
 
 - [x] PostgreSQL selected
 - [x] Core domains identified
-- [x] Initial entities identified
-- [ ] ER diagram finalized
-- [ ] Exact columns finalized
-- [ ] Relationships finalized
-- [ ] Primary keys finalized
-- [ ] Foreign keys finalized
-- [ ] Constraints finalized
-- [ ] Indexes finalized
-- [ ] Database library / ORM selected
-- [ ] Initial migration created
-- [ ] Seed data created
+- [x] Entities finalized
+- [x] ER / relationships finalized
+- [x] Columns finalized
+- [x] Primary keys finalized
+- [x] Foreign keys finalized
+- [x] Constraints finalized
+- [x] Indexes finalized
+- [x] Database access approach selected (raw SQL via `pg`, no ORM)
+- [x] Initial migrations created
+- [x] Seed data created
 - [ ] Database tested with backend

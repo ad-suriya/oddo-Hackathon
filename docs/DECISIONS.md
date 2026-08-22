@@ -274,12 +274,134 @@ database/
 
 ---
 
+## 2026-08-22 - Public Signup Cannot Choose Admin/HR Role
+
+### Decision
+
+Public self-registration always creates a user with `role = 'employee'`,
+regardless of the "Role (Employee/HR)" field shown on the signup form in
+the requirements doc. Admin/HR accounts are created out-of-band (seed data,
+or an internal invite endpoint restricted to existing admins).
+
+### Reason
+
+Letting an unauthenticated signup form grant `admin`/`hr` on request is a
+privilege-escalation vulnerability — anyone could self-promote to an HR
+role with access to all employee salary and personal data.
+
+### Alternatives Considered
+
+- Implement literally as written in the requirements doc.
+
+### Impact
+
+`users.role` ENUM has three values (`employee`, `admin`, `hr`), but the
+signup API must hardcode `employee` and ignore/reject any role provided by
+the client. Backend implementers must not "complete" this by wiring the
+signup form's role selector through to the database.
+
+---
+
+## 2026-08-22 - Admin and HR Officer Are Two Distinct Roles
+
+### Decision
+
+`users.role` has separate `admin` and `hr` values rather than merging them
+into one role.
+
+### Reason
+
+Keeps the door open for different permission sets between platform
+administration and HR operations later, at negligible schema cost (one
+extra ENUM value).
+
+### Impact
+
+The requirements doc doesn't specify different permissions between the two
+today, so backend authorization may treat them identically for the MVP.
+Splitting them later at the authorization layer (not the schema) is safe.
+
+---
+
+## 2026-08-22 - Payroll Is a Current Snapshot, No History Table
+
+### Decision
+
+`employee_salary` is a 1:1 table with `employees` holding only the current
+salary structure. Updating salary overwrites the row. No `salary_history`
+or payslip table exists yet.
+
+### Reason
+
+The requirements doc's MVP scope is "payroll visibility" and "salary
+structure management"; payslip generation is explicitly listed under
+"Future Enhancements", not MVP. Adding history/audit tables now would be
+speculative complexity.
+
+### Impact
+
+Past salary changes are not recoverable from the database. If payslip
+history becomes a requirement, it needs a new append-only table and a
+migration — flagged here so it isn't silently assumed to already exist.
+
+---
+
+## 2026-08-22 - Employee Documents Stored on Local Filesystem
+
+### Decision
+
+Uploaded documents and profile pictures are written to the backend's local
+filesystem (e.g. `backend/uploads/`). PostgreSQL stores only metadata and
+the relative `storage_path`, via the `employee_documents` table.
+
+### Reason
+
+Simplest option for a hackathon timeline; avoids adding an external object
+storage dependency (S3-compatible bucket, credentials, SDK) before it's
+needed.
+
+### Impact
+
+Not suitable for a real multi-instance production deployment (files aren't
+shared across backend instances/deploys). If that becomes necessary, swap
+to object storage by changing `storage_path` semantics and the backend's
+file-handling code — the `employee_documents` table itself doesn't need to
+change.
+
+---
+
+## 2026-08-22 - No ORM: Raw SQL via node-postgres (pg)
+
+### Decision
+
+The backend accesses PostgreSQL directly through the `pg` driver, writing
+parameterized SQL, rather than adopting an ORM (Prisma, Sequelize, etc.).
+
+### Reason
+
+`pg` is already a backend dependency (see `backend/package.json`). The
+schema is six tables with no complex query patterns that would justify ORM
+overhead — plain SQL keeps the mapping between `docs/DATABASE.md` and
+actual queries direct and auditable, and matches the Express decision's
+theme of keeping the framework/tooling learning curve low.
+
+### Alternatives Considered
+
+- Prisma
+- Sequelize
+- Knex (query builder, not full ORM)
+
+### Impact
+
+All queries are hand-written SQL (see `database/queries/common_queries.sql`
+for reference queries). No schema-migration codegen — migrations stay
+plain, ordered `.sql` files per the existing convention.
+
+---
+
 # Pending Technical Decisions
 
 The following have intentionally not been finalized:
 
-- Database library / ORM
-- Authentication implementation
-- Session/token strategy
-- Document storage
+- Authentication implementation (hashing library, session/token strategy)
 - Deployment platform
