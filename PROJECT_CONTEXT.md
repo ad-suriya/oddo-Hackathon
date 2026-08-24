@@ -124,8 +124,8 @@ Sign In
 |---|---|---|
 | A. D. Suriya | TODO | Database + Backend |
 | Pratyush | TODO | Full Stack |
-| Vikass | TODO | Frontend |
-| Gokul | TODO | QA, Validation & Error Management |
+| Vikass | TODO | Presenter, Error Finder |
+| Gokul | TODO | Frontend |
 
 ---
 
@@ -139,13 +139,13 @@ Sign In
 | Backend Architecture | A. D. Suriya | Pratyush | Not started |
 | Backend APIs | A. D. Suriya | Pratyush | Not started |
 | Business Logic | A. D. Suriya | Pratyush | Not started |
-| Frontend Architecture | Vikass | Pratyush | Not started |
-| UI/UX | Vikass | Pratyush | Not started |
-| Frontend/API Integration | Pratyush | Vikass | Not started |
+| Frontend Architecture | Gokul | Pratyush | Not started |
+| UI/UX | Gokul | Pratyush | Not started |
+| Frontend/API Integration | Pratyush | Gokul | Not started |
 | Full-Stack Integration | Pratyush | A. D. Suriya | Not started |
-| Input Validation | Gokul | A. D. Suriya | Not started |
-| Error Handling | Gokul | Pratyush | Not started |
-| Testing & Debugging | Gokul | Entire Team | Not started |
+| Input Validation | Vikass | A. D. Suriya | Not started |
+| Error Handling | Vikass | Pratyush | Not started |
+| Testing & Debugging | Vikass | Entire Team | Not started |
 
 ---
 
