@@ -170,8 +170,8 @@ refactor: extract validation into its own module
 |---|---|---|
 | A. D. Suriya | TODO | Database + Backend |
 | Pratyush | TODO | Full Stack |
-| Vikass | TODO | Frontend |
-| Gokul | TODO | QA, Validation & Error Management |
+| Vikass | TODO | Presenter, Error Finder |
+| Gokul | TODO | Frontend |
 
 ## 10. Contribution guidelines
 
